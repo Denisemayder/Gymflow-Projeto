@@ -53,8 +53,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -92,9 +92,3 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull da imagem recém-publicada
-        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest
-
-      - name: Subir/atualizar o serviço com a nova imagem
-        run: |
-          echo "### Deploy concluído ✅" >> $GITHUB_STEP_SUMMARY
-          echo "Imagem pronta para deploy: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest" >> $GITHUB_STEP_SUMMARY
