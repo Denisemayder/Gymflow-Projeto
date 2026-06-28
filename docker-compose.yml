@@ -59,6 +59,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: gymflow-cli
+    command: ["tail", "-f", "/dev/null"]
     env_file:
       - .env
     environment:
