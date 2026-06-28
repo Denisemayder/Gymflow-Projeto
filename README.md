@@ -66,7 +66,18 @@ O projeto utiliza PostgreSQL por oferecer:
 * suporte a relacionamentos complexos;
 * excelente integração com Sequelize.
 
+# Objetivo 
+Permitir:
+
+* cadastrar usuários;
+* cadastrar alunos e treinadores;
+* cadastrar exercícios;
+* criar treinos personalizados;
+* registrar o histórico dos treinos realizados;
+* acompanhar a evolução física dos alunos.
+
 ## Entidades
+O banco de dados possui as seguintes tabelas:
 
 * Usuários
 * Alunos
@@ -76,32 +87,47 @@ O projeto utiliza PostgreSQL por oferecer:
 * Histórico
 * Progresso
 
-## Relação N:N
+A tabela TreinoExercicios foi criada porque um treino pode ter vários exercícios e um exercício pode fazer parte de vários treinos.
 
-O sistema possui relacionamento muitos-para-muitos entre:
+# Volume estimado de dados
 
-Treinos ↔ Exercícios
+Tabela	   Quantidade
+Usuários	   5.000
+Alunos	     4.000
+Personais	    200
+Exercícios	 2.000
+Treinos	     30.000
+Histórico	   500.000
+Progresso	   150.000
 
-através da tabela pivô:
 
-```text
-TreinoExercicios
-```
+# Modelagem 
 
-## Modelagem
+A modelagem do banco foi desenvolvida para evitar repetição de informações e facilitar a organização dos dados.
 
-Os arquivos de modelagem encontram-se na pasta:
-
-```text
-modelagem/
-```
-
-Contendo:
+Os arquivos da modelagem estão disponíveis na pasta modelagem, contendo:
 
 * DER
 * Modelo Lógico
 * Dicionário de Dados
 
+## Normalização 
+
+* 1FN: cada coluna armazena apenas um valor.
+* 2FN: todas as informações dependem da chave primária da tabela.
+* 3FN: os dados foram separados em tabelas diferentes para evitar repetição e inconsistências.
+
+## Integridade dos Dados
+
+Para garantir a consistência das informações foram utilizadas:
+
+* Chaves Primárias (Primary Key)
+* Chaves Estrangeiras (Foreign Key)
+* Campos obrigatórios (NOT NULL)
+* Campos únicos (UNIQUE)
+* Valores padrão (DEFAULT)
+
+Também foram utilizadas regras como ON DELETE CASCADE e ON DELETE SET NULL, garantindo que os relacionamentos entre as tabelas permaneçam corretos.
 ---
 
 # Containers Utilizados
