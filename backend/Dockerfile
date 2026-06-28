@@ -1,37 +1,15 @@
-# ================================
-# ESTÁGIO 1 — Build (instala tudo)
-# ================================
 FROM node:24-alpine AS builder
-
 WORKDIR /app
-
-# Copia manifests primeiro (otimiza cache — camada menos mutável)
 COPY package*.json ./
+RUN npm ci
 
-# Instala TODAS as dependências
-RUN npm ci --frozen-lockfile
-
-# ================================
-# ESTÁGIO 2 — Runtime (imagem leve)
-# ================================
 FROM node:24-alpine AS runtime
-
 WORKDIR /app
-
+ENV NODE_ENV=production
 COPY package*.json ./
-
-# Instala somente dependências de produção
-RUN npm ci --frozen-lockfile --omit=dev && \
-    npm cache clean --force
-
-# Copia o código (camada mais mutável, sempre no final)
+RUN npm ci --omit=dev && npm cache clean --force
 COPY . .
-
-# Usuário não-root (segurança)
 RUN addgroup -S gymflow && adduser -S gymflow -G gymflow
 USER gymflow
-
 EXPOSE 3000
-
-# server.js está na raiz do projeto (contexto de build é a raiz)
 CMD ["node", "server.js"]
