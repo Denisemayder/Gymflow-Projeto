@@ -2,7 +2,7 @@
 
 ## Sistema de Gerenciamento de Treinos de Academia
 
-GYMFLOW é uma API REST desenvolvida em Node.js para gerenciamento de treinos de academia. O sistema permite o cadastro de usuários, alunos, treinadores, exercícios, treinos e o acompanhamento da evolução dos alunos.
+GYMFLOW é uma API REST desenvolvida para gerenciamento de treinos de academia. O sistema permite o cadastro de usuários, alunos, treinadores, exercícios, treinos e o acompanhamento da evolução dos alunos.
 
 O projeto foi desenvolvido como avaliação das disciplinas de Desenvolvimento Web, Banco de Dados e Infraestrutura de Sistemas Web.
 
@@ -471,3 +471,67 @@ scripts/
 docker-compose.yml
 README.md
 ```
+
+## Evidências da INFRA
+
+1. Build e subida da infraestrutura completa (CRÍTICO)  
+## docker compose up --build  
+PRINT 1: build sem erro, todos os contêineres subindo, banco saudável. 
+![alt text](image-1.png)
+![alt text](image-2.png)
+
+PRINT 2: mostrando os 5 serviços com statusUp (e o db como healthy). 
+## docker compose ps
+![alt text](image-3.png)
+
+2. Prova de Domínio CLI — Custom Bridge Network e DNS interno 
+
+PRINT 3: Saída completa em JSON, mostrando os containers(app, db, cache, cli) conectados à rede customizada, cada um com IPinterno atribuído dinamicamente (prova de que não se usa IP fixo).Evidência complementar de resolução por nome de serviço (DNS interno):  
+## docker network inspect gymflow_db-network
+![alt text](image-4.png)
+
+PRINT 4: Mostrando open - confirma que o app resolve e conecta nobanco usando o nome do serviço (gymflow-db), não um IP.
+## docker compose exec app sh -c "nc -zv gymflow-db 5432"
+![alt text](image-5.png)
+
+3. Logs do Pipeline de CI/CD    
+
+PRINT 5: GitHub: https://github.com/Denisemayder/Gymflow-Projeto/actions
+
+Build, Tag e Push para o Registry 
+Deploy (atualizar serviço com a nova imagem) 
+![alt text](image-6.png)
+
+4. PoC — Persistência de Dados 
+PRINT 6: captura da tabela com os registros e seus createdAt.
+## docker compose exec db psql -U gymflow_user -d gymflow -c "SELECT * FROM exercicios LIMIT 3;"
+![alt text](image-7.png)
+
+PRINT 7: captura mostrando os mesmos dados, com o mesmo createdAt —prova de que o container foi recriado, mas o volume nomeado (postgres_data)manteve os dados. 
+
+![alt text](image-8.png)
+
+5. PoC — Segurança (isolamento do banco)  host (deve falhar): PRINT 8: captura mostrando curl: (7) Failed to connect...   
+## curl http://localhost:5432
+![alt text](image-9.png)
+![alt text](image-12.png)
+
+Dentro da rede Docker (deve conectar):   
+## docker compose exec app sh -c "nc -zv gymflow-db 5432"
+![alt text](image-10.png)
+ 
+6. Evidência de funcionamento da aplicação (acesso via Nginx)
+PRINT 9: captura mostrando HTTP/1.1 200 OK 
+
+Rodando... 
+## curl http://localhost/health
+![alt text](image-14.png)
+
+PRINT 10: captura da tela do Swagger UI carregando no navegador, com aURL visível na barra de endereço  
+## Navegador - http://localhost/api-docs 
+![alt text](image-15.png)
+
+
+Removendo containers, redes e volumes; docker compose down -v 
+## docker compose down -v
+![alt text](image-16.png)

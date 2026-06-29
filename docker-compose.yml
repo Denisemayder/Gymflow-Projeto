@@ -41,6 +41,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/setup.sql:/docker-entrypoint-initdb.d/01-setup.sql:ro
       - ./scripts/seed/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+
     networks:
       - db-network
     healthcheck:
